@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/src/.vs
+/src/DockerBackup.App/obj
+/src/DockerBackup.App/DockerBackup.App.csproj.user
+/src/DockerBackup.Model/obj
