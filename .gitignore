@@ -7,3 +7,15 @@
 /src/DockerBackup.App/obj
 /src/DockerBackup.App/DockerBackup.App.csproj.user
 /src/DockerBackup.Model/obj
+/src/DockerBackup.App/bin/Debug/net8.0
+/src/DockerBackup.App/database.sqlite
+/src/DockerBackup.App/database.sqlite-shm
+/src/DockerBackup.App/database.sqlite-wal
+/src/DockerBackup.Business/bin/Debug/net8.0
+/src/DockerBackup.Business/obj
+/src/DockerBackup.Business.Interfaces/bin/Debug/net8.0
+/src/DockerBackup.Business.Interfaces/obj
+/src/DockerBackup.Business.Tests/bin/Debug/net8.0
+/src/DockerBackup.Business.Tests/obj
+/src/DockerBackup.Model/bin/Debug/net8.0
+/src/DockerBackup.sln.DotSettings.user
