@@ -4,6 +4,7 @@ using DockerBackup.Model.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,13 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentity<User, Role>(options => { }).AddEntityFrameworkStores<BackupsDbContext>();
 builder.Services.AddControllersWithViews();
+
+//Configure logger
+builder.Host.UseSerilog();
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+Log.Logger = logger;
 
 var app = builder.Build();
 
@@ -43,6 +51,7 @@ app.MapControllerRoute(
 using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().CreateScope())
 {
     var context = serviceScope.ServiceProvider.GetRequiredService<BackupsDbContext>();
+    var log = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     context.Database.Migrate();
 
     var anyUsers = context.Users.Any();
@@ -51,7 +60,9 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().Create
     {
         //If there aren't any users, initialize with the default admin user
         var configurations = serviceScope.ServiceProvider.GetRequiredService<IConfiguration>();
-        string adminPassword = configurations["DOCKERBACKUP_ADMIN_PASSWORD"] ?? new PasswordGenerator(new PasswordGeneratorOptions(){ PasswordLength = 16, SymbolsAmount = 1}).Generate();
+        bool wasPasswordSupplied = !string.IsNullOrWhiteSpace(configurations["DOCKERBACKUP_ADMIN_PASSWORD"]);
+
+        string adminPassword = wasPasswordSupplied ? configurations["DOCKERBACKUP_ADMIN_PASSWORD"] : new PasswordGenerator(new PasswordGeneratorOptions(){ PasswordLength = 16, SymbolsAmount = 1}).Generate();
 
         var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<User>>();
         var userToCreate = new User() { UserName = "admin" };
@@ -59,12 +70,14 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().Create
 
         if (result.Succeeded)
         {
-            //Change this after implementing serilog
-            Console.WriteLine($"Admin user created with password:{adminPassword}");
+            log.LogInformation($"Admin user created { (wasPasswordSupplied ? "with environment variable value" : "with password:" + adminPassword) }");
         }
         else
         {
-            //Log error here
+            log.LogError($"admin user initialization failed:{string.Join(",", result.Errors.Select(e => e.Description))}");
+
+            var appLifetime = serviceScope.ServiceProvider.GetRequiredService<IHostApplicationLifetime>();
+            appLifetime.StopApplication();
         }
     }
 }
