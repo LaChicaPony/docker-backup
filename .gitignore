@@ -19,3 +19,4 @@
 /src/DockerBackup.Business.Tests/obj
 /src/DockerBackup.Model/bin/Debug/net8.0
 /src/DockerBackup.sln.DotSettings.user
+/docs/.idea
