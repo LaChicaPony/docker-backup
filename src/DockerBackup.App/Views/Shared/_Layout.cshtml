@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using DockerBackup.Model.Models
+@using Microsoft.AspNetCore.Identity
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -22,10 +24,13 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
                     </ul>
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <div class="d-flex" role="search">
+                            <span>Hello @User.Identity.Name! (<a asp-controller="Account" asp-action="Logout">Logout</a>)</span>
+                        </div>
+                    }
                 </div>
             </div>
         </nav>
@@ -38,7 +43,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - DockerBackup.App - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - DockerBackup.App
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
