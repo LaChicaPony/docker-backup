@@ -2,7 +2,30 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@model List<ContainerVM>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Image</th>
+                <th scope="col">Backups Enabled?</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var container in Model)
+            {
+                <tr>
+                    <td>@container.Id</td>
+                    <td>@container.Name</td>
+                    <td>@container.Image</td>
+                    <td>No</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 </div>

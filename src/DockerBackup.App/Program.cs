@@ -1,10 +1,12 @@
+using Docker.DotNet;
 using DockerBackup.Business.Helpers;
+using DockerBackup.Business.Interfaces.Services;
+using DockerBackup.Business.Services;
 using DockerBackup.Model;
 using DockerBackup.Model.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<BackupsDbContext>(options => options.UseSqlite("data source=database.sqlite"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.AddScoped<IDockerClient, DockerClient>(r =>
+{
+    var configurations = r.GetRequiredService<IConfiguration>();
+    string serverUrl = !string.IsNullOrWhiteSpace(configurations["DOCKERBACKUP_SERVER_URL"]) ? configurations["DOCKERBACKUP_SERVER_URL"] : "unix:///var/run/docker.sock";
+
+    var clientConfig = new DockerClientConfiguration(new Uri(serverUrl));
+
+    return clientConfig.CreateClient();
+});
+    
+builder.Services.AddScoped<IContainersService, ContainersService>();
 
 builder.Services.AddIdentity<User, Role>(options => { }).AddEntityFrameworkStores<BackupsDbContext>();
 builder.Services.AddControllersWithViews(options =>

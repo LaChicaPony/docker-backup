@@ -11,7 +11,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Docker.DotNet" Version="3.125.15" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DockerBackup.Business.Interfaces\DockerBackup.Business.Interfaces.csproj" />
+    <ProjectReference Include="..\DockerBackup.Model\DockerBackup.Model.csproj" />
   </ItemGroup>
 
 </Project>
