@@ -7,6 +7,9 @@ namespace DockerBackup.Model;
 
 public class BackupsDbContext : IdentityDbContext<User,Role, string>
 {
+    public DbSet<Schedule> Schedules { get; set; }
+    public DbSet<ContainerVolume> ContainerVolumes { get; set; }
+
     public BackupsDbContext(DbContextOptions<BackupsDbContext> options): base(options)
     {
 

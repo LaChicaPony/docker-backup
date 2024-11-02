@@ -2,6 +2,7 @@
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using DockerBackup.Business.Interfaces.Services;
+using DockerBackup.Model.Models;
 using Microsoft.Extensions.Logging;
 
 namespace DockerBackup.Business.Services;
@@ -27,8 +28,26 @@ public class ContainersService : IContainersService
             Command = c.Command,
             Image = c.Image,
             ImageId = c.ImageID,
-            Name = c.Names.FirstOrDefault(),
-            Mounts = c.Mounts.Select(m => m.Source).ToList()
+            Name = c.Names.FirstOrDefault()
         }).ToList();
+    }
+
+    public async Task<List<ContainerVolume>> GetAllVolumesAsync(string containerName)
+    {
+        var filters = new List<KeyValuePair<string, IDictionary<string, bool>>>()
+        {
+            new KeyValuePair<string, IDictionary<string, bool>>("name", new Dictionary<string, bool>(new List<KeyValuePair<string, bool>>()
+            {
+                new KeyValuePair<string, bool>(containerName, true)
+            }))
+        };
+        var container = await _client.Containers.ListContainersAsync(new ContainersListParameters() { Filters = new Dictionary<string, IDictionary<string, bool>>(filters)});
+
+        if (container == null || !container.Any())
+        {
+            return new List<ContainerVolume>();
+        }
+
+        return container[0].Mounts.Select(m => new ContainerVolume() { HostPath = m.Source, ContainerPath = m.Destination, Driver = m.Driver, Schedule = new Schedule(){ ContainerName = containerName }}).ToList();
     }
 }

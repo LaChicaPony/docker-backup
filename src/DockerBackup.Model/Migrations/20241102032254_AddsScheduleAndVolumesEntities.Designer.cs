@@ -3,6 +3,7 @@ using System;
 using DockerBackup.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DockerBackup.Model.Migrations
 {
     [DbContext(typeof(BackupsDbContext))]
-    partial class BackupsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241102032254_AddsScheduleAndVolumesEntities")]
+    partial class AddsScheduleAndVolumesEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -25,9 +28,6 @@ namespace DockerBackup.Model.Migrations
 
                     b.Property<string>("ContainerPath")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Driver")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("HostPath")

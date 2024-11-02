@@ -26,6 +26,7 @@ builder.Services.AddScoped<IDockerClient, DockerClient>(r =>
 });
     
 builder.Services.AddScoped<IContainersService, ContainersService>();
+builder.Services.AddScoped<ISchedulesService, SchedulesService>();
 
 builder.Services.AddIdentity<User, Role>(options => { }).AddEntityFrameworkStores<BackupsDbContext>();
 builder.Services.AddControllersWithViews(options =>

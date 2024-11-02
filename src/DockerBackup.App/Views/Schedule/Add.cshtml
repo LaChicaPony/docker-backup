@@ -1,0 +1,49 @@
+﻿@model SaveScheduleVM
+
+<div class="card">
+    <div class="card-body">
+        <form asp-controller="Schedule" asp-action="Add">
+            @Html.Hidden("ContainerName", Model.ContainerVolumes[0].Schedule.ContainerName)
+            <div class="mb-3 row">
+                <label for="Frequency" class="col-sm-2 col-form-label">Frequency</label>
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(m => m.Frequency, new List<SelectListItem>() { new SelectListItem("Daily", "1") })
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Hour" class="col-sm-2 col-form-label">Hour</label>
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(m => m.Hour, Enumerable.Range(0, 24).Select(i => new SelectListItem(i.ToString(), i.ToString())))
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="Minute" class="col-sm-2 col-form-label">Minute</label>
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(m => m.Minute, Enumerable.Range(0, 60).Select(i => new SelectListItem(i.ToString(), i.ToString())))
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Container Path</th>
+                    <th scope="col">Host Path</th>
+                    <th scope="col">Backup</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var volume in Model.ContainerVolumes)
+                {
+                    <tr>
+                        <td>@volume.ContainerPath</td>
+                        <td>@volume.HostPath</td>
+                        <td><input name="SelectedVolumes" type="checkbox" value="@volume.HostPath"/></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            <div class="float-end">
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

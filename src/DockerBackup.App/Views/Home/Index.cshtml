@@ -9,10 +9,11 @@
         <table class="table">
             <thead>
             <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Name</th>
-                <th scope="col">Image</th>
-                <th scope="col">Backups Enabled?</th>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Backups Enabled?</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -23,6 +24,7 @@
                     <td>@container.Name</td>
                     <td>@container.Image</td>
                     <td>No</td>
+                    <td><a asp-controller="Schedule" asp-action="Add" asp-route-containerName="@container.Name">Enable</a></td>
                 </tr>
             }
             </tbody>

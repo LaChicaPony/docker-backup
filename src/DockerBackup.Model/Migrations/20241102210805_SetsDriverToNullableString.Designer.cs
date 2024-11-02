@@ -3,6 +3,7 @@ using System;
 using DockerBackup.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DockerBackup.Model.Migrations
 {
     [DbContext(typeof(BackupsDbContext))]
-    partial class BackupsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241102210805_SetsDriverToNullableString")]
+    partial class SetsDriverToNullableString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
