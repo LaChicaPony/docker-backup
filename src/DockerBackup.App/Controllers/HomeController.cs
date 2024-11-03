@@ -22,7 +22,7 @@ namespace DockerBackup.App.Controllers
             var allContainers = await _containersService.GetAllAsync();
 
 
-            return View(allContainers.Select(c => new ContainerVM(c)).ToList());
+            return View(allContainers);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

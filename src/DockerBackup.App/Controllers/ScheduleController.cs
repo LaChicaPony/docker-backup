@@ -40,5 +40,13 @@ namespace DockerBackup.App.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(string containerName)
+        {
+            await _schedulesService.DeleteAsync(containerName);
+
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

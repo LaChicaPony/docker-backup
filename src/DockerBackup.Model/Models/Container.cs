@@ -7,5 +7,4 @@ public class Container
     public string Image { get; set; }
     public string  ImageId { get; set; }
     public string Command { get; set; }
-    public List<string> Mounts { get; set; }
 }

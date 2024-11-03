@@ -2,7 +2,7 @@
     ViewData["Title"] = "Home Page";
 }
 
-@model List<ContainerVM>
+@model List<DockerBackup.Business.Interfaces.Models.IContainerSchedule>
 
 <div class="card">
     <div class="card-body">
@@ -19,12 +19,21 @@
             <tbody>
             @foreach (var container in Model)
             {
-                <tr>
+                    <tr class="@(container.IsBackedUp && !string.IsNullOrWhiteSpace(container.Id) ? "table-success" : "")">
                     <td>@container.Id</td>
                     <td>@container.Name</td>
                     <td>@container.Image</td>
-                    <td>No</td>
-                    <td><a asp-controller="Schedule" asp-action="Add" asp-route-containerName="@container.Name">Enable</a></td>
+                    <td>@(container.IsBackedUp ? string.Format("Yes ({0} - {1:00}:{2:00})", container.Frequency, container.Hour, container.Minute) : "No")</td>
+                    <td>
+                        @if (container.IsBackedUp)
+                        {
+                            <a asp-controller="Schedule" asp-action="Delete" asp-route-containerName="@container.Name">Disable</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Schedule" asp-action="Add" asp-route-containerName="@container.Name">Enable</a>
+                        }
+                    </td>
                 </tr>
             }
             </tbody>

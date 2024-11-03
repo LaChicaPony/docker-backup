@@ -45,4 +45,22 @@ public class SchedulesService : ISchedulesService
 
         //TODO: Enable job at job scheduler when implemented
     }
+
+    public async Task DeleteAsync(string container)
+    {
+        //TODO: Disable job at job scheduler when implemented
+
+        var schedules = _db.Schedules.Where(x => x.ContainerName == container).ToList();
+
+        foreach (var schedule in schedules)
+        {
+            var volumes = _db.ContainerVolumes.Where(x => x.ScheduleId == schedule.Id).ToList();
+            _db.ContainerVolumes.RemoveRange(volumes);
+
+            await _db.SaveChangesAsync();
+        }
+
+        _db.Schedules.RemoveRange(schedules);
+        await _db.SaveChangesAsync();
+    }
 }
