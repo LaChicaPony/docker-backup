@@ -1,4 +1,6 @@
 using Docker.DotNet;
+using DockerBackup.App.Initializers;
+using DockerBackup.App.Jobs;
 using DockerBackup.Business.Helpers;
 using DockerBackup.Business.Interfaces.Services;
 using DockerBackup.Business.Services;
@@ -7,12 +9,18 @@ using DockerBackup.Model.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+string connectionString = "data source=database.sqlite";
+
 // Add services to the container.
-builder.Services.AddDbContext<BackupsDbContext>(options => options.UseSqlite("data source=database.sqlite"));
+builder.Services.AddDbContext<BackupsDbContext>(options =>
+{
+    options.UseSqlite(connectionString);
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddScoped<IDockerClient, DockerClient>(r =>
@@ -33,6 +41,24 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
 });
+
+builder.Services.AddQuartz(q =>
+{
+    q.UsePersistentStore(s =>
+    {
+        s.UseProperties = true;
+        s.RetryInterval = TimeSpan.FromSeconds(60);
+
+        s.UseSQLite(connectionString);
+        s.UseNewtonsoftJsonSerializer();
+    });
+});
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
+
+builder.Services.AddTransient<DockerVolumeBackupJob>();
 
 //Configure logger
 builder.Host.UseSerilog();
@@ -90,6 +116,9 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>().Create
         if (result.Succeeded)
         {
             log.LogInformation($"Admin user created { (wasPasswordSupplied ? "with environment variable value" : "with password:" + adminPassword) }");
+
+            //Create scheduler tables
+            QuartzDbInitializer.Initialize(context.Database);
         }
         else
         {

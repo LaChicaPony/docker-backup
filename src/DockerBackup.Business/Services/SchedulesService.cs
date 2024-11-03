@@ -1,9 +1,11 @@
 ﻿using Docker.DotNet.Models;
+using DockerBackup.App.Jobs;
 using DockerBackup.Business.Interfaces.Services;
 using DockerBackup.Model;
 using DockerBackup.Model.Enums;
 using DockerBackup.Model.Models;
 using Microsoft.Extensions.Logging;
+using Quartz;
 
 namespace DockerBackup.Business.Services;
 
@@ -11,12 +13,14 @@ public class SchedulesService : ISchedulesService
 {
     private readonly ILogger<SchedulesService> _logger;
     private readonly IContainersService _containersService;
+    private readonly ISchedulerFactory _schedulerFactory;
     private readonly BackupsDbContext _db;
 
-    public SchedulesService(ILogger<SchedulesService> logger, IContainersService containersService, BackupsDbContext db)
+    public SchedulesService(ILogger<SchedulesService> logger, IContainersService containersService, ISchedulerFactory schedulerFactory, BackupsDbContext db)
     {
         _logger = logger;
         _containersService = containersService;
+        _schedulerFactory = schedulerFactory;
         _db = db;
     }
 
@@ -43,7 +47,22 @@ public class SchedulesService : ISchedulesService
         _db.ContainerVolumes.AddRange(volumes);
         await _db.SaveChangesAsync();
 
-        //TODO: Enable job at job scheduler when implemented
+        _logger.LogInformation($"Scheduling job for '{container}' container at {hour}:{minute} every day");
+
+        var newJob = JobBuilder.Create<DockerVolumeBackupJob>()
+                               .WithIdentity($"{container}_backup_job")
+                               .UsingJobData("container", container)
+                               .Build();
+        var newTrigger = TriggerBuilder.Create()
+                                        .WithIdentity($"{container}_backup_job_trigger")
+                                        .StartNow()
+                                        .WithCronSchedule($"0 {minute} {hour} ? * *")
+                                        .Build();
+
+        var scheduler = await _schedulerFactory.GetScheduler();
+        await scheduler.ScheduleJob(newJob, newTrigger);
+
+        _logger.LogInformation($"Job scheduled successfully.");
     }
 
     public async Task DeleteAsync(string container)
@@ -62,5 +81,12 @@ public class SchedulesService : ISchedulesService
 
         _db.Schedules.RemoveRange(schedules);
         await _db.SaveChangesAsync();
+
+        _logger.LogInformation($"Deleting scheduled job for '{container}' container...");
+
+        var scheduler = await _schedulerFactory.GetScheduler();
+        await scheduler.DeleteJob(JobKey.Create($"{container}_backup_job"));
+
+        _logger.LogInformation($"scheduled job deleted successfully.");
     }
 }
