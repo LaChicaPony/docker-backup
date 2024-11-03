@@ -27,9 +27,10 @@ public class DockerVolumeBackupJob : IJob
         string s3Key = _configs["DOCKERBACKUP_S3_KEY"];
         string s3Secret = _configs["DOCKERBACKUP_S3_SECRET"];
         string s3Endpoint = _configs["DOCKERBACKUP_S3_ENDPOINT"];
+        string s3Bucket = _configs["DOCKERBACKUP_S3_BUCKET"];
 
         if (string.IsNullOrWhiteSpace(s3Key) || string.IsNullOrWhiteSpace(s3Secret) ||
-            string.IsNullOrWhiteSpace(s3Endpoint))
+            string.IsNullOrWhiteSpace(s3Endpoint) || string.IsNullOrWhiteSpace(s3Bucket))
         {
             _logger.LogError("S3 configurations environment variables not found, exiting job");
 
@@ -80,7 +81,7 @@ public class DockerVolumeBackupJob : IJob
                         }
                     }
                 },
-                Entrypoint = new List<string>() { "/bin/sh", "-c", $"(apk add zip && rclone config create s3 s3 env_auth=true && cd /data && (zip -r - . | rclone rcat s3:jess-raspi-backups/{DateTime.Now.ToString("yyyy-M-d")}/{container.TrimStart('/')}_{volume.ContainerPath.Replace("/","_")}.zip))" },
+                Entrypoint = new List<string>() { "/bin/sh", "-c", $"(apk add zip && rclone config create s3 s3 env_auth=true && cd /data && (zip -r - . | rclone rcat s3:{s3Bucket}/{DateTime.Now.ToString("yyyy-M-d")}/{container.TrimStart('/')}_{volume.ContainerPath.Replace("/","_")}.zip))" },
             });
             var containerStarted = await _dockerClient.Containers.StartContainerAsync(containerResponse.ID, new ContainerStartParameters());
 
